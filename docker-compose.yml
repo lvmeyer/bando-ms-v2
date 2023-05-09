@@ -1,30 +1,54 @@
 services:
-  orders:
-    tty: true
-    stdin_open: true
-    build:
-      context: .
-      dockerfile: ./service-gw/Dockerfile
-      target: development
-    command: npm run start:dev
-    # env_file:
-    #   - ./service-gw/.env
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
     volumes:
-      - ./service-gw:/usr/src/app
-      - /usr/src/app/node_modules
+      - /var/lib/rabbitmq
     ports:
-      - '3000:3000'
+      - '5672:5672'
+      - '15672:15672'
+    env_file:
+      - .env
 
-  database:
-    image: postgres:14-alpine
-    environment:
-      - POSTGRES_DB=app
-      - POSTGRES_PASSWORD=user
-      - POSTGRES_USER=user
-    ports:
-      - 5432:5432
-    volumes:
-      - db_data:/var/lib/postgresql/data
+  # gw:
+  #   tty: true
+  #   stdin_open: true
+  #   build:
+  #     context: .
+  #     dockerfile: ./service-gw/Dockerfile
+  #     target: development
+  #   command: npm run start:dev
+  #   # env_file:
+  #   #   - ./service-gw/.env
+  #   volumes:
+  #     - ./service-gw:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   ports:
+  #     - '3000:3000'
+
+  # orders:
+  #   tty: true
+  #   stdin_open: true
+  #   build:
+  #     context: .
+  #     dockerfile: ./worker-orders/Dockerfile
+  #     target: development
+  #   command: npm run start:dev
+  #   volumes:
+  #     - ./worker-orders:/usr/src/app
+  #     - /usr/src/app/node_modules
+
+  # database:
+  #   image: postgres:14-alpine
+  #   environment:
+  #     - POSTGRES_DB=app
+  #     - POSTGRES_PASSWORD=user
+  #     - POSTGRES_USER=user
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
 
 volumes:
   db_data:

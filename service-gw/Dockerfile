@@ -2,11 +2,9 @@ FROM node:19-alpine As development
 
 WORKDIR /usr/src/app
 
-COPY service-gw/package*.json ./
+COPY service-gw ./
 
 RUN npm install
-
-COPY . .
 
 RUN npm run build
 # RUN npm run build billings --prefix service-gw

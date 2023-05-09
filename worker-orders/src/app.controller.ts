@@ -1,14 +1,20 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { EventPattern } from '@nestjs/microservices';
+import { Ctx, EventPattern, RmqContext } from '@nestjs/microservices';
 import { CreateUserEvent } from './create-usser.event.js';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @EventPattern('user_created')
-  handleUserCreated(data: CreateUserEvent) {
-    this.appService.handleUserCreated(data);
+  @EventPattern({ cmd: 'get-user' })
+  handleUserCreated(@Ctx() context: RmqContext, data: CreateUserEvent) {
+    // console.log('PROC222');
+    // this.appService.handleUserCreated(data);
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+    channel.ack(message);
+
+    return { user: 'USER' };
   }
 }
