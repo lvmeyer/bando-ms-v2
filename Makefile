@@ -1,13 +1,15 @@
-.PHONY: build start stop img runcont stopcont
+.PHONY: build start stop restart img runcont stopcont
 
 build:
 	docker-compose up --build -V
 
 start:
-	docker-compose up -d
+	docker-compose up
 
 stop:
-	docker-compose down
+	docker-compose down --remove-orphans
+
+restart: stop start
 
 img:
 	docker build -t gw -f ./service-gw/Dockerfile ./service-gw

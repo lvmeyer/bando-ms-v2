@@ -1,26 +1,28 @@
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
+
+import * as Joi from 'joi';
+
 import { AppController } from './gw.controller';
-import { AppService } from './gw.service';
-import {
-  ClientProxyFactory,
-  ClientsModule,
-  Transport,
-} from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GwService } from './gw.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: './env',
+      validationSchema: Joi.object({
+        RABBITMQ_URI: Joi.string().required(),
+      }),
     }),
     ClientsModule.register([
       {
-        name: 'AUTH_SERVICE',
+        name: 'ORDERS_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://user:password@localhost:5672'],
-          queue: 'auth_queue',
+          urls: [process.env.RABBITMQ_URI],
+          queue: 'orders_queue',
           queueOptions: {
             durable: false,
           },
@@ -29,25 +31,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     ]),
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    // {
-    //   provide: 'AUTH_SERVICE',
-    //   useFactory: (configService: ConfigService) => {
-    //     return ClientProxyFactory.create({
-    //       transport: Transport.RMQ,
-    //       options: {
-    //         urls: ['amqp://user:password@localhost:5672'],
-    //         noAck: false,
-    //         queue: 'auth_queue',
-    //         queueOptions: {
-    //           durable: false,
-    //         },
-    //       },
-    //     });
-    //   },
-    //   inject: [ConfigService],
-    // },
-  ],
+  providers: [GwService],
 })
-export class AppModule {}
+export class GwModule {}
